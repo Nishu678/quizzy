@@ -15,6 +15,7 @@ import { Eye, EyeOff, Loader2, UserPlus, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -100,12 +101,18 @@ const RegisterForm = () => {
       // Set user in auth context
       if (data.user) {
         login(data.user);
+        toast.success(`Account created successfully! Welcome, ${data.user.name}!`);
       }
-      router.push("/");
+      router.replace("/");
     },
     onError: (error) => {
       console.error("Registration error:", error);
       // Show error message to user
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
     },
   });
 

@@ -15,6 +15,7 @@ import { Eye, EyeOff, Loader2, Brain, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 const loginSchema = z
   .object({
@@ -69,12 +70,18 @@ const LoginForm = () => {
       // Set user in auth context
       if (data.user) {
         login(data.user);
+        toast.success(`Welcome back, ${data.user.name}!`);
       }
-      router.push("/");
+      router.replace("/");
     },
     onError: (error) => {
       console.error("Login error:", error);
       // Show error message to user
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Login failed. Please check your credentials.");
+      }
     },
   });
 

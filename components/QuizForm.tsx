@@ -13,6 +13,7 @@ import { Loader2, Plus, Trash2, Save, Sparkles, Brain, ChevronLeft } from "lucid
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const quizSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -75,7 +76,16 @@ const QuizForm = () => {
       return response.data;
     },
     onSuccess: () => {
+      toast.success("Quiz created successfully!");
       router.push("/");
+    },
+    onError: (error) => {
+      console.error("Quiz creation error:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Failed to create quiz. Please try again.");
+      }
     }
   });
 
@@ -100,12 +110,12 @@ const QuizForm = () => {
 
     // Validate required fields
     if (!title || !description || !category || !difficulty) {
-      setError("Please fill in title, description, category, and difficulty first");
+      toast.error("Please fill in title, description, category, and difficulty first");
       return;
     }
 
     if (questionCount < 1 || questionCount > 50) {
-      setError("Question count must be between 1 and 50");
+      toast.error("Question count must be between 1 and 50");
       return;
     }
 
@@ -145,8 +155,12 @@ const QuizForm = () => {
           explanation: q.explanation || "",
         });
       });
+
+      toast.success(`Successfully generated ${data.questions.length} questions!`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate questions");
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate questions";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }

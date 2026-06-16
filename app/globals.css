@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Light mode CSS variables */
 :root {
   --background: 0 0% 100%;
   --foreground: 0 0% 9%;
@@ -32,28 +33,98 @@
   --radius: 0.75rem;
 }
 
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark mode CSS variables */
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 98%;
+
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 98%;
+
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 98%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 64%;
+
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 239 84% 67%;
+}
+
+/* System preference dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 239 84% 67%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 239 84% 67%;
+  }
+}
+
+.light {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 9%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 239 84% 67%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -88,6 +159,66 @@
   }
 }
 
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 98%;
+
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 98%;
+
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 98%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 64%;
+
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 239 84% 67%;
+}
+
+.light {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 9%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 239 84% 67%;
+}
+
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
@@ -118,7 +249,8 @@ body {
 
 /* Floating animation */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -132,7 +264,8 @@ body {
 
 /* Pulse glow animation */
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -157,7 +290,115 @@ body {
 }
 
 .button-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   background-size: 200% 100%;
   animation: shimmer 3s infinite;
+}
+
+/* Toast Notifications */
+[data-sonner-toast] {
+  @apply rounded-xl shadow-2xl backdrop-blur-lg;
+  background: rgba(10, 10, 26, 0.95) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Success Toast - Green */
+[data-sonner-toast][data-type="success"] {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95)) !important;
+  border: 2px solid rgba(34, 197, 94, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast][data-type="success"] [data-description],
+[data-sonner-toast][data-type="success"] .sonner-toast-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Error Toast - Red */
+[data-sonner-toast][data-type="error"] {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)) !important;
+  border: 2px solid rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3) !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast][data-type="error"] [data-description],
+[data-sonner-toast][data-type="error"] .sonner-toast-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Info Toast - Blue */
+[data-sonner-toast][data-type="info"] {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95)) !important;
+  border: 2px solid rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3) !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast][data-type="info"] [data-description],
+[data-sonner-toast][data-type="info"] .sonner-toast-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Warning Toast - Yellow/Orange */
+[data-sonner-toast][data-type="warning"] {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.95), rgba(202, 138, 4, 0.95)) !important;
+  border: 2px solid rgba(234, 179, 8, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(234, 179, 8, 0.3) !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast][data-type="warning"] [data-description],
+[data-sonner-toast][data-type="warning"] .sonner-toast-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Loading Toast - Dark */
+[data-sonner-toast][data-type="loading"] {
+  background: rgba(10, 10, 26, 0.95) !important;
+  border: 2px solid rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="loading"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast][data-type="loading"] [data-description],
+[data-sonner-toast][data-type="loading"] .sonner-toast-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Toast Close Button */
+[data-sonner-toast] [data-close-button] {
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: color 0.2s ease;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  color: rgba(255, 255, 255, 1) !important;
 }
