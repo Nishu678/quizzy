@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -52,6 +52,41 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [myQuizzes, setMyQuizzes] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch quizzes from MongoDB
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const response = await fetch("/api/quizzes");
+        const data = await response.json();
+
+        if (data.success) {
+          // Add id field to match _id for easier use
+          const quizzesWithId = data.quizzes.map((quiz: any) => ({
+            ...quiz,
+            id: quiz._id
+          }));
+
+          console.log("Quizzes with ID mapping:", quizzesWithId.map(q => ({ _id: q._id, id: q.id, title: q.title })));
+
+          setQuizzes(quizzesWithId);
+
+          // If logged in, show all quizzes as "My Quizzes" for now
+          // TODO: Later filter by actual user ID
+          setMyQuizzes(quizzesWithId);
+        }
+      } catch (error) {
+        console.error("Failed to fetch quizzes:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuizzes();
+  }, []);
 
   // Navigation links for logged-in users
   const navLinks = [
@@ -71,193 +106,9 @@ export default function Home() {
     { href: "/history", label: "History", icon: History, active: false },
   ];
 
-  const myQuizzes = [
-    {
-      id: 1,
-      title: "JavaScript Fundamentals",
-      description:
-        "Test your knowledge of JavaScript basics, ES6+ features, and common patterns",
-      category: "Technology",
-      difficulty: "Medium",
-      questions: 10,
-      plays: 156,
-      rating: 4.5,
-      status: "Published",
-      timeLimit: 15,
-      createdAt: "2024-01-15",
-    },
-    {
-      id: 2,
-      title: "World Capitals",
-      description:
-        "Challenge yourself to identify capital cities from around the globe",
-      category: "Geography",
-      difficulty: "Easy",
-      questions: 15,
-      plays: 89,
-      rating: 4.2,
-      status: "Published",
-      timeLimit: 20,
-      createdAt: "2024-01-20",
-    },
-    {
-      id: 3,
-      title: "Science Quiz",
-      description:
-        "Explore physics, chemistry, and biology concepts in this comprehensive test",
-      category: "Science",
-      difficulty: "Hard",
-      questions: 20,
-      plays: 234,
-      rating: 4.8,
-      status: "Published",
-      timeLimit: 30,
-      createdAt: "2024-02-01",
-    },
-    {
-      id: 4,
-      title: "React Hooks Mastery",
-      description:
-        "Deep dive into useState, useEffect, useContext and custom hooks",
-      category: "Technology",
-      difficulty: "Hard",
-      questions: 12,
-      plays: 312,
-      rating: 4.9,
-      status: "Published",
-      timeLimit: 25,
-      createdAt: "2024-02-10",
-    },
-    {
-      id: 5,
-      title: "Ancient Civilizations",
-      description:
-        "Journey through Egypt, Greece, Rome, and other ancient empires",
-      category: "History",
-      difficulty: "Medium",
-      questions: 18,
-      plays: 178,
-      rating: 4.6,
-      status: "Published",
-      timeLimit: 22,
-      createdAt: "2024-02-15",
-    },
-    {
-      id: 6,
-      title: "Basketball Legends",
-      description:
-        "Test your knowledge of NBA history, players, and championships",
-      category: "Sports",
-      difficulty: "Easy",
-      questions: 14,
-      plays: 245,
-      rating: 4.3,
-      status: "Draft",
-      timeLimit: 18,
-      createdAt: "2024-02-20",
-    },
-    {
-      id: 7,
-      title: "Movie Trivia",
-      description:
-        "From classic films to modern blockbusters - how well do you know cinema?",
-      category: "Entertainment",
-      difficulty: "Medium",
-      questions: 16,
-      plays: 421,
-      rating: 4.7,
-      status: "Published",
-      timeLimit: 20,
-      createdAt: "2024-02-25",
-    },
-    {
-      id: 8,
-      title: "Python Programming",
-      description: "Master Python syntax, data structures, and OOP concepts",
-      category: "Technology",
-      difficulty: "Medium",
-      questions: 15,
-      plays: 289,
-      rating: 4.4,
-      status: "Published",
-      timeLimit: 20,
-      createdAt: "2024-03-01",
-    },
-  ];
-
-  // Mock data for popular/public quizzes
-  const quizzes = [
-    {
-      _id: "1",
-      title: "Web Development Essentials",
-      description: "Master HTML, CSS, and JavaScript fundamentals",
-      category: "Technology",
-      rating: 4.8,
-      plays: 2340,
-      questions: 20,
-      difficulty: "Medium",
-      timeLimit: 25,
-    },
-    {
-      _id: "2",
-      title: "Space Exploration",
-      description: "Journey through the cosmos and test your astronomy knowledge",
-      category: "Science",
-      rating: 4.6,
-      plays: 1890,
-      questions: 15,
-      difficulty: "Hard",
-      timeLimit: 20,
-    },
-    {
-      _id: "3",
-      title: "Ancient Civilizations",
-      description: "Explore the great empires and cultures of the ancient world",
-      category: "History",
-      rating: 4.7,
-      plays: 1560,
-      questions: 18,
-      difficulty: "Medium",
-      timeLimit: 22,
-    },
-    {
-      _id: "4",
-      title: "World Geography Challenge",
-      description: "Test your knowledge of countries, capitals, and landmarks",
-      category: "Geography",
-      rating: 4.5,
-      plays: 2100,
-      questions: 25,
-      difficulty: "Easy",
-      timeLimit: 30,
-    },
-    {
-      _id: "5",
-      title: "Football Legends",
-      description: "How well do you know the greatest players and moments?",
-      category: "Sports",
-      rating: 4.4,
-      plays: 1750,
-      questions: 12,
-      difficulty: "Easy",
-      timeLimit: 15,
-    },
-    {
-      _id: "6",
-      title: "TV Show Trivia",
-      description: "From sitcoms to dramas - test your television knowledge",
-      category: "Entertainment",
-      rating: 4.9,
-      plays: 2800,
-      questions: 20,
-      difficulty: "Medium",
-      timeLimit: 20,
-    },
-  ];
-
   // Filter and sort myQuizzes based on selected category, search query, and sort option
   const filteredMyQuizzes = myQuizzes
-    .filter((quiz) => {
+    .filter((quiz: any) => {
       const matchesCategory =
         selectedMyQuizCategory === "All" ||
         quiz.category === selectedMyQuizCategory;
@@ -266,7 +117,7 @@ export default function Home() {
         quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     })
-    .sort((a, b) => {
+    .sort((a: any, b: any) => {
       switch (sortBy) {
         case "newest":
           return (
@@ -286,26 +137,6 @@ export default function Home() {
           return 0;
       }
     });
-
-  // const fetchQuizzes = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const url =
-  //       selectedCategory === "All"
-  //         ? "/api/quizzes"
-  //         : `/api/quizzes?category=${selectedCategory}`;
-  //     const response = await axios.get(url);
-  //     setQuizzes(response.data.quizzes || []);
-  //   } catch (error) {
-  //     console.error("Error fetching quizzes:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchQuizzes();
-  // }, [selectedCategory]);
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white">
@@ -792,7 +623,7 @@ export default function Home() {
                         {quiz.status}
                       </span>
                       <span className="text-xs text-gray-500 ml-2">
-                        {quiz.questions} questions
+                        {quiz.questions?.length || quiz.questions || 0} questions
                       </span>
                     </div>
 
@@ -951,7 +782,7 @@ export default function Home() {
                 {quizzes.map((quiz, index) => (
                   <Link
                     key={quiz._id}
-                    href={`/quiz/${quiz._id}`}
+                    href={`/quiz/${quiz.id}`}
                     className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
@@ -997,7 +828,7 @@ export default function Home() {
                     </div>
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                       <span className="text-xs text-gray-500 font-medium">
-                        {quiz.questions} questions
+                        {quiz.questions?.length || quiz.questions || 0} questions
                       </span>
                       <div className="inline-flex items-center gap-2 text-purple-400 text-sm font-semibold group-hover:text-purple-300 transition-colors">
                         Start Quiz

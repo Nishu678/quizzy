@@ -5,12 +5,20 @@ import { NextResponse } from "next/server";
 // GET single quiz
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const quiz = await Quiz.findById(params.id);
+    // Await params in Next.js 14+
+    const { id } = await params;
+
+    // Debug logging
+    console.log("Fetching quiz with ID:", id);
+
+    const quiz = await Quiz.findById(id);
+
+    console.log("Found quiz:", quiz ? "Yes" : "No", "Quiz ID:", quiz?._id);
 
     if (!quiz) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
@@ -18,7 +26,17 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      quiz,
+      quiz: {
+        _id: quiz._id,
+        title: quiz.title,
+        description: quiz.description,
+        category: quiz.category,
+        difficulty: quiz.difficulty,
+        questions: quiz.questions,
+        timeLimit: quiz.timeLimit,
+        plays: quiz.plays,
+        rating: quiz.rating,
+      },
     });
   } catch (error) {
     console.error("Error fetching quiz:", error);
@@ -29,13 +47,14 @@ export async function GET(
 // PUT update quiz
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
+    const { id } = await params;
     const data = await request.json();
-    const quiz = await Quiz.findById(params.id);
+    const quiz = await Quiz.findById(id);
 
     if (!quiz) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
@@ -45,7 +64,7 @@ export async function PUT(
     // For now, skip auth check
 
     const updatedQuiz = await Quiz.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: data },
       { new: true, runValidators: true }
     );
@@ -64,12 +83,13 @@ export async function PUT(
 // DELETE quiz
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const quiz = await Quiz.findById(params.id);
+    const { id } = await params;
+    const quiz = await Quiz.findById(id);
 
     if (!quiz) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
@@ -78,7 +98,7 @@ export async function DELETE(
     // TODO: Check if user is the creator
     // For now, skip auth check
 
-    await Quiz.findByIdAndDelete(params.id);
+    await Quiz.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,

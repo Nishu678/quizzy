@@ -57,14 +57,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // TODO: Get user ID from session/auth
-    // For now, using a dummy user ID
-    const createdBy = "dummy_user_id";
+    // Get user ID from request (if authenticated)
+    // For now, not requiring auth for demo
+    const createdBy = data.createdBy || null;
 
     const quiz = await Quiz.create({
-      ...data,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      difficulty: data.difficulty,
+      questions: data.questions,
+      timeLimit: data.timeLimit,
       createdBy,
-      isPublished: true, // Auto-publish for now
+      isPublished: true, // Auto-publish
+      plays: 0,
+      rating: 0,
     });
 
     return NextResponse.json({

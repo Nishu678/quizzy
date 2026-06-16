@@ -34,12 +34,17 @@ const QuizForm = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [questionCount, setQuestionCount] = useState(3); // Reduced to avoid rate limits
+  const [error, setError] = useState<string | null>(null);
+
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<QuizFormValues>({
     resolver: zodResolver(quizSchema),
     defaultValues: {
@@ -85,6 +90,66 @@ const QuizForm = () => {
       correctAnswer: 0,
       explanation: ""
     });
+  };
+
+  const generateQuestions = async () => {
+    const title = watch("title");
+    const description = watch("description");
+    const category = watch("category");
+    const difficulty = watch("difficulty");
+
+    // Validate required fields
+    if (!title || !description || !category || !difficulty) {
+      setError("Please fill in title, description, category, and difficulty first");
+      return;
+    }
+
+    if (questionCount < 1 || questionCount > 50) {
+      setError("Question count must be between 1 and 50");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          category,
+          difficulty,
+          questionCount,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle rate limit with helpful message
+        if (response.status === 429 && data.message) {
+          throw new Error(data.message);
+        }
+        throw new Error(data.error || "Failed to generate questions");
+      }
+
+      // Clear existing questions and add AI-generated ones
+      setValue("questions", []);
+      data.questions.forEach((q: any) => {
+        append({
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation || "",
+        });
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate questions");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const questions = watch("questions");
@@ -236,6 +301,64 @@ const QuizForm = () => {
                   {...register("timeLimit", { valueAsNumber: true })}
                 />
                 <p className="text-sm text-gray-500 mt-1">Leave empty for no time limit</p>
+              </div>
+
+              {/* AI Question Generation */}
+              <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="p-2 bg-purple-500/20 rounded-lg">
+                    <Sparkles className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white mb-1">Generate Questions with AI</h3>
+                    <p className="text-sm text-gray-400">
+                      Let AI create questions based on your quiz details
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="questionCount" className="text-gray-300">
+                      Number of Questions
+                    </Label>
+                    <Input
+                      id="questionCount"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={questionCount}
+                      onChange={(e) => setQuestionCount(parseInt(e.target.value) || 5)}
+                      className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-purple-500/30 focus-visible:border-purple-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Between 1 and 50 questions</p>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={generateQuestions}
+                    disabled={isGenerating}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="w-4 h-4 mr-2" />
+                        Generate Questions
+                      </>
+                    )}
+                  </Button>
+
+                  {error && (
+                    <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+                      <p className="text-sm text-red-400">{error}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

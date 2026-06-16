@@ -19,81 +19,72 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Call Anthropic API
-    const anthropic = require("@anthropic-ai/sdk");
-    const client = new anthropic.Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+    // Call Groq API (FREE)
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant", // Faster model, better rate limits
+        messages: [
+          {
+            role: "system",
+            content: "Generate quiz questions as JSON array. Format: [{question, options:[4 choices], correctAnswer:0-3, explanation}]. No markdown."
+          },
+          {
+            role: "user",
+            content: `Create ${questionCount} ${difficulty} questions about: ${title}. ${description}. Category: ${category}. Return JSON array only.`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 4096, // Reduced to avoid rate limits
+        response_format: { type: "json_object" }
+      }),
     });
 
-    const prompt = `You are a quiz question generator. Generate ${questionCount} multiple choice questions for a quiz with the following details:
+    if (!groqResponse.ok) {
+      const errorData = await groqResponse.text();
+      const parsedError = JSON.parse(errorData);
 
-Title: ${title}
-Description: ${description}
-Category: ${category}
-Difficulty: ${difficulty}
-
-Requirements:
-- Create ${questionCount} questions appropriate for ${difficulty} level
-- Questions should test knowledge thoroughly based on the title and description
-- Each question must have exactly 4 options
-- Questions should be clear, unambiguous, and factually accurate
-- Include brief explanations for the correct answer
-- Make questions engaging but challenging
-
-Return ONLY a valid JSON array of questions in this exact format (no markdown, no code blocks):
-[
-  {
-    "question": "Question text here?",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctAnswer": 0,
-    "explanation": "Brief explanation why this is correct"
-  }
-]
-
-Note: correctAnswer should be 0-3 (index of the correct option)`;
-
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 8192,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-
-    // Extract JSON from response
-    const content =
-      message.content[0].type === "text" ? message.content[0].text : "";
-
-    // Parse JSON (handle potential markdown code blocks)
-    let questions;
-    try {
-      // Try parsing directly
-      questions = JSON.parse(content);
-    } catch {
-      // Try extracting from markdown code block
-      const jsonMatch = content.match(/```(?:json)?\s*(\[[\s\S]*\])\s*```/);
-      if (jsonMatch) {
-        questions = JSON.parse(jsonMatch[1]);
-      } else {
-        // Try finding array in content
-        const arrayMatch = content.match(/\[[\s\S]*\]/);
-        if (arrayMatch) {
-          questions = JSON.parse(arrayMatch[0]);
-        } else {
-          throw new Error("Could not parse AI response as JSON");
+      // Handle rate limit with retry
+      if (parsedError.error?.code === 'rate_limit_exceeded') {
+        const retryAfter = parsedError.error?.message?.match(/try again in ([\d.]+)s/)?.[1];
+        if (retryAfter) {
+          return NextResponse.json({
+            error: "Rate limit reached",
+            retryAfter: parseFloat(retryAfter),
+            message: `Please wait ${Math.ceil(parseFloat(retryAfter))} seconds and try again`
+          }, { status: 429 });
         }
       }
+
+      throw new Error(`Groq API error: ${groqResponse.status} - ${errorData}`);
     }
 
-    // Validate questions array
-    if (!Array.isArray(questions) || questions.length === 0) {
-      throw new Error("AI did not return a valid questions array");
+    const groqData = await groqResponse.json();
+    const content = groqData.choices[0].message.content;
+
+    // Parse JSON response
+    let parsedData;
+    try {
+      parsedData = JSON.parse(content);
+    } catch {
+      throw new Error("Failed to parse AI response as JSON");
     }
 
-    // Validate each question has required fields
+    // Handle different response formats
+    let questions = parsedData.questions || parsedData;
+    if (!Array.isArray(questions)) {
+      throw new Error("AI did not return a questions array");
+    }
+
+    // Validate questions
+    if (questions.length === 0) {
+      throw new Error("AI returned empty questions array");
+    }
+
     for (const q of questions) {
       if (!q.question || !q.options || !Array.isArray(q.options) || q.options.length < 2) {
         throw new Error("Invalid question format from AI");
