@@ -39,6 +39,7 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("Error logging in user:", error);
-        return NextResponse.json({ error: "Error logging in user" }, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : "Error logging in user";
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
