@@ -25,6 +25,22 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
+interface Quiz {
+  _id: string;
+  id: string;
+  title: string;
+  description?: string;
+  category?: string;
+  difficulty?: string;
+  questions?: any[];
+  timeLimit?: number;
+  rating?: number;
+  plays?: number;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 const categories = [
   { name: "Technology", icon: "💻", color: "from-blue-500 to-cyan-500" },
   { name: "Science", icon: "🔬", color: "from-purple-500 to-pink-500" },
@@ -52,8 +68,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [quizzes, setQuizzes] = useState<any[]>([]);
-  const [myQuizzes, setMyQuizzes] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [myQuizzes, setMyQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch quizzes from MongoDB
@@ -70,7 +86,7 @@ export default function Home() {
             id: quiz._id
           }));
 
-          console.log("Quizzes with ID mapping:", quizzesWithId.map(q => ({ _id: q._id, id: q.id, title: q.title })));
+          console.log("Quizzes with ID mapping:", quizzesWithId.map((q: any) => ({ _id: q._id, id: q.id, title: q.title })));
 
           setQuizzes(quizzesWithId);
 
@@ -573,7 +589,7 @@ export default function Home() {
                       <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded-full">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span className="text-xs font-bold text-amber-300">
-                          {quiz.rating > 0 ? quiz.rating : "N/A"}
+                          {(quiz.rating && quiz.rating > 0) ? quiz.rating : "N/A"}
                         </span>
                       </div>
                     </div>
