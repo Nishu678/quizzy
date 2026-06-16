@@ -2,13 +2,17 @@
 // so no new connection is created every time a route is reloaded
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const getMongodbUri = () => {
+    const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-    throw new Error(
-        "Please define the MONGODB_URI environment variable inside .env.local"
-    );
-}
+    if (!MONGODB_URI) {
+        throw new Error(
+            "Please define the MONGODB_URI environment variable inside .env.local"
+        );
+    }
+
+    return MONGODB_URI;
+};
 
 // Type declaration for global mongoose cache
 interface MongooseCache {
@@ -37,7 +41,7 @@ export const dbConnect = async function () {
             maxPoolSize: 10,
         };
 
-        cached.promise = mongoose.connect(MONGODB_URI, opts);
+        cached.promise = mongoose.connect(getMongodbUri(), opts);
     }
 
     try {
